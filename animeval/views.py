@@ -127,59 +127,60 @@ def home(request):
             if anime in access_animes:
                 pass
             else:
-                if anime.genre == top_genre:
+                if anime.genre == top_genre and not ReviewModel.objects.filter(anime = anime, user = request.user).exists:
                     access_animes.append(anime)
         
         # access_animesの評価平均を取得
-        ac_evaluation_sum = [0,0,0,0,0]
-        for anime in access_animes:
-            reviews = ReviewModel.objects.filter(anime = anime)
-            evaluation_sum = [0,0,0,0,0]
-
-            for review in reviews:
-                evaluation_sum = np.array(evaluation_sum) + np.array(review.evaluation)
-
-            evaluation_ave = [n/reviews.count() for n in evaluation_sum]
-
-            ac_evaluation_sum = np.array(ac_evaluation_sum) + np.array(evaluation_ave)
-        
-        ac_evaluation_ave = [n/len(access_animes) for n in ac_evaluation_sum]
-
-        # 該当ジャンルの全てのアニメの類似度を取得
-        anime_list = {}
-        for anime in AnimeModel.objects.filter(genre = top_genre):
-            if not anime in access_animes:
+        if len(access_animes) > 0:
+            ac_evaluation_sum = [0,0,0,0,0]
+            for anime in access_animes:
                 reviews = ReviewModel.objects.filter(anime = anime)
                 evaluation_sum = [0,0,0,0,0]
-                if reviews.exists():
-                    
-                    for review in reviews:
-                        evaluation_sum = np.array(evaluation_sum) + np.array(review.evaluation)
-                    
-                    evaluation_ave = [n/reviews.count() for n in evaluation_sum]
 
-                    evaluation_sub = np.array(ac_evaluation_ave) - np.array(evaluation_ave)
-                    evaluation_sqr = map(lambda x : x**2, evaluation_sub)
-                    similarity_value = math.sqrt(sum(evaluation_sqr))
+                for review in reviews:
+                    evaluation_sum = np.array(evaluation_sum) + np.array(review.evaluation)
 
-                    anime_list[anime] = similarity_value
+                evaluation_ave = [n/reviews.count() for n in evaluation_sum]
 
-                    rec_anime = min(anime_list, key = anime_list.get)  # 類似度が最大のアニメを取得
-                    rec_anime_reviews = ReviewModel.objects.filter(anime = rec_anime).order_by('?')[:3]
-                    review_count = rec_anime_reviews.count()  # rec_animeのレビュー数を
-                    
-                    rank = anime_rank(rec_anime)
+                ac_evaluation_sum = np.array(ac_evaluation_sum) + np.array(evaluation_ave)
+            
+            ac_evaluation_ave = [n/len(access_animes) for n in ac_evaluation_sum]
 
-                    return render(request,'home.html',{
-                            'review_list' : review_list, 
-                            'profile' : profile, 
-                            'rec_anime' : rec_anime, 
-                            'rank' : rank,
-                            'review_count' : review_count,
-                            'ac_evaluation_ave' : ac_evaluation_ave,
-                            'rec_anime_reviews' : rec_anime_reviews,
-                            'all_anime_list' : all_anime_list,
-                            'comment_list' : comment_list})
+            # 該当ジャンルの全てのアニメの類似度を取得
+            anime_list = {}
+            for anime in AnimeModel.objects.filter(genre = top_genre):
+                if not anime in access_animes:
+                    reviews = ReviewModel.objects.filter(anime = anime)
+                    evaluation_sum = [0,0,0,0,0]
+                    if reviews.exists():
+                        
+                        for review in reviews:
+                            evaluation_sum = np.array(evaluation_sum) + np.array(review.evaluation)
+                        
+                        evaluation_ave = [n/reviews.count() for n in evaluation_sum]
+
+                        evaluation_sub = np.array(ac_evaluation_ave) - np.array(evaluation_ave)
+                        evaluation_sqr = map(lambda x : x**2, evaluation_sub)
+                        similarity_value = math.sqrt(sum(evaluation_sqr))
+
+                        anime_list[anime] = similarity_value
+
+                        rec_anime = min(anime_list, key = anime_list.get)  # 類似度が最大のアニメを取得
+                        rec_anime_reviews = ReviewModel.objects.filter(anime = rec_anime).order_by('?')[:3]
+                        review_count = rec_anime_reviews.count()  # rec_animeのレビュー数を
+                        
+                        rank = anime_rank(rec_anime)
+
+                        return render(request,'home.html',{
+                                'review_list' : review_list, 
+                                'profile' : profile, 
+                                'rec_anime' : rec_anime, 
+                                'rank' : rank,
+                                'review_count' : review_count,
+                                'ac_evaluation_ave' : ac_evaluation_ave,
+                                'rec_anime_reviews' : rec_anime_reviews,
+                                'all_anime_list' : all_anime_list,
+                                'comment_list' : comment_list})
         
     return render(request,'home.html',{'review_list' : review_list, 'profile' : profile, 'all_anime_list' : all_anime_list})
 
@@ -271,10 +272,10 @@ def create_review(request):
     return render(request,'create_review.html',{'form' : form, 'profile' : profile, 'anime_title_list' : anime_title_list})
 
 def update_review(request,pk):
-    object = ReviewModel.objects.get (pk = pk)
+    review = ReviewModel.objects.get (pk = pk)
     profile = ProfileModel.objects.get(user = request.user)
-    review_title = object.review_title
-    review_title += '\n'
+    
+    pre_review = review.review_title + '\n' + review.review_content
     
     if request.method == 'POST':
         content_split = request.POST.get('review_content').splitlines()  # レビュー内容を改行ごとにリスト化
@@ -293,7 +294,7 @@ def update_review(request,pk):
         object.save()
         return redirect('review_detail', pk = pk)
 
-    return render(request, 'update_review.html', {'object' : object, 'profile' : profile, 'review_title' : review_title})
+    return render(request, 'update_review.html', {'review' : review, 'pre_review' : pre_review, 'profile' : profile})
 
 def delete_review(request,pk):
     ReviewModel.objects.get(pk = pk).delete()  # pkから取得し、削除
