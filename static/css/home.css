@@ -1,4 +1,38 @@
 
+#anime-rank-list{
+    display: flex;
+    justify-content: space-between;
+}
+
+#rank-title{
+    background-color: rgb(80, 80, 80);
+    border: grey solid;
+    border-width: 2px 0px 1px 0px;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+}
+
+#first{
+    color: goldenrod;
+}
+
+#second{
+    color: silver;
+}
+
+#third{
+    color: #815a2b;
+}
+
+.anime{
+    width: calc(100%/3);
+    border: solid 0.5px gray;
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
 #trend{
     margin-bottom: 15px;
     border: solid 1px gray;
@@ -130,5 +164,3 @@
     color: aliceblue;
     text-decoration: none;
 }
-
-

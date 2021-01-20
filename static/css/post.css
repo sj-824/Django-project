@@ -29,17 +29,16 @@ section{
 }
 
 #evaluation{
-    display: flex;
-    justify-content: space-between;
-    width: 500px;
-    border: 1px solid black;
-    margin-left: 50%;
-    transform: translate(-50%);
+    
 }
 
 #evaluation div{
+    position: relative;
     text-align: center;
-    width: 100px;
+}
+
+#evaluation div p{
+    margin: 0;
 }
 
 #button{
@@ -47,3 +46,115 @@ section{
     right: 20px;
 }
 
+
+.story-stars{
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    left: 51%;
+    transform: translate(-50%,0%);
+    width: 200px;
+}
+.story-stars input[type='radio']{
+    display: none;
+}
+.story-stars label{
+    padding-right: 10px;
+    color: #ccc;
+    font-size: 30px;
+    cursor: pointer;
+} 
+.story-stars label:hover,
+.story-stars label:hover ~ label,
+.story-stars input[type='radio']:checked ~ label{
+    color: #fc0;
+}
+
+.draw-stars{
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    left: 51%;
+    transform: translate(-50%,0%);
+    width: 200px;
+}
+.draw-stars input[type='radio']{
+    display: none;
+}
+.draw-stars label{
+    padding-right: 10px;
+    color: #ccc;
+    font-size: 30px;
+    cursor: pointer;
+} 
+.draw-stars label:hover,
+.draw-stars label:hover ~ label,
+.draw-stars input[type='radio']:checked ~ label{
+    color: #fc0;
+}
+.music-stars{
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    left: 51%;
+    transform: translate(-50%,0%);
+    width: 200px;
+}
+.music-stars input[type='radio']{
+    display: none;
+}
+.music-stars label{
+    padding-right: 10px;
+    color: #ccc;
+    font-size: 30px;
+    cursor: pointer;
+} 
+.music-stars label:hover,
+.music-stars label:hover ~ label,
+.music-stars input[type='radio']:checked ~ label{
+    color: #fc0;
+}
+.chara-stars{
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    left: 51%;
+    transform: translate(-50%,0%);
+    width: 200px;
+}
+.chara-stars input[type='radio']{
+    display: none;
+}
+.chara-stars label{
+    padding-right: 10px;
+    color: #ccc;
+    font-size: 30px;
+    cursor: pointer;
+} 
+.chara-stars label:hover,
+.chara-stars label:hover ~ label,
+.chara-stars input[type='radio']:checked ~ label{
+    color: #fc0;
+}
+.cv-stars{
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    left: 51%;
+    transform: translate(-50%,0%);
+    width: 200px;
+}
+.cv-stars input[type='radio']{
+    display: none;
+}
+.cv-stars label{
+    padding-right: 10px;
+    color: #ccc;
+    font-size: 30px;
+    cursor: pointer;
+} 
+.cv-stars label:hover,
+.cv-stars label:hover ~ label,
+.cv-stars input[type='radio']:checked ~ label{
+    color: #fc0;
+}

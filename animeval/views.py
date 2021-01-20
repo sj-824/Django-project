@@ -15,6 +15,7 @@ import io
 import math
 from django.db.models import Q
 from django.db.models import Avg
+from datetime import datetime, timedelta
 # Create your views here.
 
 class Login(LoginView):
@@ -120,7 +121,7 @@ def home(request):
     top_genre = genre[genre_counter.index(max(genre_counter)) + 1]  # 最もアクセス数の高いジャンルを取得
 
     # アクセスしたアニメのうち、ジャンルがgenre_topと同じアニメ飲み抽出
-    if AccessReview.objects.filter(user = request.user).exists():
+    if AccessReview.objects.filter(user = request.user).count() > 20:
         access_animes = []
         for ac_review in AccessReview.objects.filter(user = request.user):
             anime = ac_review.review.anime
@@ -182,7 +183,25 @@ def home(request):
                                 'all_anime_list' : all_anime_list,
                                 'comment_list' : comment_list})
         
-    return render(request,'home.html',{'review_list' : review_list, 'profile' : profile, 'all_anime_list' : all_anime_list})
+    else:
+        anime_by_popular = {}
+        reviews = ReviewModel.objects.all()
+        now = datetime.now()
+        one_week_ago = now - timedelta(days = 7)
+        for anime in all_anime_list:
+            if reviews.filter(anime = anime).exists():
+                anime_ave = reviews.filter(anime = anime).filter(post_date__range = (one_week_ago,now)).aggregate(anime_ave = Avg('evaluation_ave'))
+                anime_by_popular[anime] = anime_ave['anime_ave']
+        anime_by_popular = sorted(anime_by_popular.items(), key=lambda x:x[1], reverse = True)
+        anime_list = []
+        for anime in anime_by_popular:
+            anime_list.append(anime[0])
+
+    
+        return render(request,'home.html',{'review_list' : review_list, 
+        'profile' : profile, 
+        'all_anime_list' : all_anime_list,
+        'anime_list' : anime_list[0:3]})
 
 def profile(request,pk):
     profile = ProfileModel.objects.get(pk = pk)
@@ -213,11 +232,11 @@ def create_review(request):
         anime = request.POST.get('anime')  # 投稿したアニメ名を取得
 
         if not AnimeModel.objects.filter(title = anime).exists():  # アニメ一覧に該当アニメがない場合
-            context = {'context' : '未登録もしくは入力したタイトルに間違いがあります。'}
+            context = {'context' : '未登録もしくは入力したタイトルに間違いがあります。','profile':profile}
             return render (request, 'create_review.html', context)
         
         elif ReviewModel.objects.filter(user = request.user).filter(anime__title = anime).exists():  # すでにレビュー済みのアニメの場合
-            context = {'context' : 'すでにレビュー済みのアニメです'}
+            context = {'context' : 'すでにレビュー済みのアニメです','profile' : profile}
             return render(request, 'create_review.html', context)
         
         else:
