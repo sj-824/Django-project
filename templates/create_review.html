@@ -126,7 +126,7 @@
             let elIn = document.getElementById('search');
             list.forEach( (item) => {
                 if (elInput !== ''){
-                    if (item.indexOf(elInput) !== -1) {
+                    if (item.startsWith(elInput)) {
                         nameList.push(item);
                     }
                 }

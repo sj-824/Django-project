@@ -61,7 +61,7 @@
     border: aliceblue solid 1px;
     width: 80%;
     text-align: center;
-    background-color: rgb(24, 23, 23);
+    background-color: rgb(43, 43, 43);
 }
 
 #section2{
@@ -75,7 +75,7 @@
 #title{
     padding-top: 7px;
     display: flex;
-    background-color: rgba(0, 1, 70, 0.5);
+    background-color: rgba(41, 42, 114, 0.5);
     border: solid white;
     border-width: 0 0 3px 0;
     color: white;
@@ -133,8 +133,9 @@
 }
 
 #review-list{
-    height: 470px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    height: 440px;
+    border: #f0f8ff solid 1px;
 }
 
 #review{

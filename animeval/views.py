@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_list_or_404
+from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth import login, authenticate, get_user_model, logout
@@ -16,6 +16,8 @@ import math
 from django.db.models import Q
 from django.db.models import Avg
 from datetime import datetime, timedelta
+from itertools import groupby
+from django.http import Http404, HttpResponseBadRequest
 # Create your views here.
 
 class Login(LoginView):
@@ -48,6 +50,7 @@ class UserDelete(LoginRequiredMixin, generic.View):
         user.save()
         logout(self.request)
         return render(self.request,'user_delete.html')
+        
 
 def homepage(request):
     return render(request,'homepage.html')
@@ -87,7 +90,7 @@ def home(request):
             Q(review_content__icontains=query_word)
         ).order_by('-post_date')
     else:
-        review_list = ReviewModel.objects.all().order_by('-post_date')
+        review_list = ReviewModel.objects.exclude(user = request.user).order_by('-post_date')
 
     profile = ProfileModel.objects.get(user = request.user)
 
@@ -101,7 +104,6 @@ def home(request):
 
     if AnimeModel.objects.exists():
         all_anime_list = AnimeModel.objects.all().order_by('title')
-
     # おすすめアニメの表示
 
     # 数字とジャンルを紐付け
@@ -204,25 +206,32 @@ def home(request):
         'anime_list' : anime_list[0:3]})
 
 def profile(request,pk):
-    profile = ProfileModel.objects.get(pk = pk)
+    
+    profile = get_object_or_404(ProfileModel, pk = pk)
 
-    query_word = request.GET.get('q')
-    if query_word:
-        review_list = ReviewModel.objects.filter(user = profile.user).filter(
-            Q(review_title__icontains=query_word) | 
-            Q(anime__title__icontains=query_word) |
-            Q(review_content__icontains=query_word)
-        ).order_by('-post_date')
-    else:
-        review_list = ReviewModel.objects.filter(user = profile.user).order_by('-post_date')
+    if not profile.user == request.user:
+        logout(request)
+        return redirect('homepage')
+        
 
-    review_num = ReviewModel.objects.filter(user = profile.user).count()
-    if review_list.exists():
-        return render(request, 'profile.html', {'profile' : profile, 'review_list' : review_list,'review_num' : review_num})
     else:
-        review_num = 0
-        context = '投稿レビューはありません'
-        return render(request, 'profile.html',{'profile' : profile, 'context' : context, 'review_num' : review_num})
+        query_word = request.GET.get('q')
+        if query_word:
+            review_list = ReviewModel.objects.filter(user = profile.user).filter(
+                Q(review_title__icontains=query_word) | 
+                Q(anime__title__icontains=query_word) |
+                Q(review_content__icontains=query_word)
+            ).order_by('-post_date')
+        else:
+            review_list = ReviewModel.objects.filter(user = profile.user).order_by('-post_date')
+
+        review_num = ReviewModel.objects.filter(user = profile.user).count()
+        if review_list.exists():
+            return render(request, 'profile.html', {'profile' : profile, 'review_list' : review_list,'review_num' : review_num})
+        else:
+            review_num = 0
+            context = '投稿レビューはありません'
+            return render(request, 'profile.html',{'profile' : profile, 'context' : context, 'review_num' : review_num})
 
 def create_review(request):
     profile = ProfileModel.objects.get(user = request.user)  # profileを取得

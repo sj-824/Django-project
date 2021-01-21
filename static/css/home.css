@@ -107,16 +107,34 @@
 }
 
 #link-list{
-    width: 30%;
+    width: 29%;
     position: relative;
-    height: 800px;
+    height: 400px;
+    margin-left: 20px;
+}
+
+#anime-list{
+    overflow-y: auto;
+    height: 400px;
+    border: solid grey 1px;
+    
+}
+
+#anime-list ul{
+    padding: 10;
+}
+
+#anime-list ul li{
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10px;
+    text-decoration-line: underline;
 }
 
 .link{
-    width: 300px;
+    width: 100%;
     position: absolute;
     right: 0%;
-    border: 1px grey solid;
 }
 
 .link-title{
@@ -126,6 +144,17 @@
     width: 100%;
     padding: 0;
     text-align: center;
+    margin: 0;
+    overflow-y: inherit;
+}
+
+#anime-ul{
+    overflow-y: auto;
+}
+
+#main{
+    height: 800px;
+    overflow-y: auto;
 }
 
 #review-item{

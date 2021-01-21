@@ -56,18 +56,13 @@ let increament = (i) => {
 }
 
 let clickDisplay = () => {
-    const clickElem = document.getElementById('intro-title');    
-    clickElem.addEventListener('click', () => {
+    const introElem = document.getElementById('intro-title');    
+    const clickElem = document.getElementById('click');
+    introElem.addEventListener('click', () => {
         let interval = loopFactory(increament);
+        clickElem.classList.remove('flash');
+        clickElem.classList.add('not-flash');
     })
 }
 
 clickDisplay();
-
-window.addEventListener('scroll', () => {
-    const clickElem = document.getElementById('click');
-    if (window.scrollY > 230){
-        clickElem.classList.remove('flash');
-        clickElem.classList.add('not-flash');
-    }
-})
